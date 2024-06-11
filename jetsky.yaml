@@ -1,6 +1,7 @@
 ---
 - name: Required packages
   hosts: linux
+  become: True
   tasks:
     - name: Install required packages
       yum:
