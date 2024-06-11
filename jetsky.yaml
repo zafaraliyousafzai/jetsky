@@ -1,45 +1,8 @@
 ---
-- name: Ensure Required Packages Are Installed
+- name: Required packages
   hosts: linux
   become: true
   tasks:
-    - name: Register system with Red Hat Subscription Management
-      command: sudo subscription-manager register --username=zafar98 --password=Az6290754**
-      register: register_output
-      ignore_errors: true
-
-    - name: Debug registration output
-      debug:
-        msg: "{{ register_output.stdout }}"
-
-    - name: Attach subscription
-      command: subscription-manager attach --auto
-      when: register_output.rc == 0
-      register: attach_output
-      ignore_errors: true
-
-    - name: Debug attach subscription output
-      debug:
-        msg: "{{ attach_output.stdout }}"
-
-    - name: Enable rhel-9-baseos-rhui-rpms repository
-      command: subscription-manager repos --enable=rhel-9-baseos-rhui-rpms
-      when: register_output.rc == 0
-      register: enable_repo_output
-      ignore_errors: true
-
-    - name: Debug enable repository output
-      debug:
-        msg: "{{ enable_repo_output.stdout }}"
-
-    - name: Clean yum cache
-      command: yum clean all
-      when: register_output.rc == 0
-
-    - name: Make yum cache
-      command: yum makecache
-      when: register_output.rc == 0
-
     - name: Install required packages
       yum:
         name: "{{ item }}"
@@ -55,8 +18,3 @@
         - krb5-workstation
         - openldap-clients
       register: package_installation
-      ignore_errors: yes
-
-    - name: Debug package installation results
-      debug:
-        msg: "{{ package_installation.results }}"
