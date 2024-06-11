@@ -3,18 +3,21 @@
   hosts: linux
   become: true
   tasks:
-     - name: Install required packages
-       yum:
-         name: "{{ item }}"
-         state: present
-       loop:
-          - sssd
-          - realmd
-          - oddjob
-          - oddjob-mkhomedir
-          - adcli
-          - samba-common
-          - samba-common-tools
-          - krb5-workstation
-          - openldap-clients
-       register: package_installation
+    - name: Install required packages
+      yum:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - sssd
+        - realmd
+        - oddjob
+        - oddjob-mkhomedir
+        - adcli
+        - samba-common
+        - samba-common-tools
+        - krb5-workstation
+        - openldap-clients
+      register: package_installation
+
+    - debug:
+        var: package_installation
