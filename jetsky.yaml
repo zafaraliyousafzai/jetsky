@@ -1,6 +1,6 @@
 ---
 - name: Required packages
-  hosts: "all"
+  hosts: linux
   become: true
   tasks:
      - name: Install required packages
