@@ -3,15 +3,6 @@
   hosts: linux
   become: true
   tasks:
-    - name: Check if openldap-clients package is available
-      command: yum list available openldap-clients
-      register: openldap_check
-      ignore_errors: yes
-
-    - name: Debug openldap-clients package availability
-      debug:
-        msg: "{{ openldap_check.stdout }}"
-
     - name: Install required packages
       yum:
         name: "{{ item }}"
@@ -27,9 +18,3 @@
         - krb5-workstation
         - openldap-clients
       register: package_installation
-      ignore_errors: yes
-
-    - name: Debug package installation results
-      debug:
-        msg: "{{ package_installation.results }}"
-
