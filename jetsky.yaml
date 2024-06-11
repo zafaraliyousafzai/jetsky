@@ -1,5 +1,4 @@
 - name: Required packages
-  become: true
   tasks:
      - name: Install required packages
        yum:
