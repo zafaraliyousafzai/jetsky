@@ -1,5 +1,4 @@
 - name: Required packages
-  hosts: linux
   become: true
   tasks:
      - name: Install required packages
