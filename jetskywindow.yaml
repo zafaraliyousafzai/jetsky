@@ -1,0 +1,7 @@
+---
+ - name: Domain Join
+    vars_prompt:
+       - name: "bind_password"
+          prompt: "Password for the AD user"
+           private: yes
+           command: /bin/bash -c “echo {{ bind_password }} |  realm -v join corp.jetstar.com --user=svc_LinuxADInt --computer-ou="OU=Linux,OU=Servers,DC=corp,DC=jetstar,DC=com"
