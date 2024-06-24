@@ -1,0 +1,20 @@
+---
+- name: Gather complete process information
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: Get process information using ps
+      shell: ps aux
+      register: process_info_ps
+
+    - name: Print process information from ps
+      debug:
+        var: process_info_ps.stdout_lines
+
+    - name: Get detailed process information using top
+      shell: top -bn1
+      register: process_info_top
+
+    - name: Print detailed process information from top
+      debug:
+        var: process_info_top.stdout_lines
