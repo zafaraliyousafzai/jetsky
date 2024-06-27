@@ -1,0 +1,7 @@
+VM: all
+Hostname,IP,Name,UID,Path
+{% for host, data in groups.items() %}
+{% for item in data %}
+{{ host }},{{ item.IP }},{{ item.Name }},{{ item.UID }},{{ item.Path }}
+{% endfor %}
+{% endfor %}

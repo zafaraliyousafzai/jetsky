@@ -1,0 +1,68 @@
+---
+- name: Gather Non-OS Applications Information
+  hosts: all
+  gather_facts: yes
+
+  tasks:
+    - name: Get list of running non-OS applications
+      shell: ps -eo comm,uid,args --no-headers
+      register: process_list
+      changed_when: false
+      become: yes
+
+    - name: Parse process list and collect information
+      set_fact:
+        nonos_applications: "{{ nonos_applications | default([]) + [ {'name': item.split()[0], 'uid': item.split()[1], 'path': ' '.join(item.split()[2:])} ] }}"
+      with_items: "{{ process_list.stdout_lines }}"
+      when: "'/' in item.split()[2]"
+
+    - name: Filter out kernel-related processes
+      set_fact:
+        nonos_applications_filtered: "{{ nonos_applications | rejectattr('name', 'match', '^kworker|^migration|^cpuhp|^xfs-|^ksoftirqd|^xfsaild') | list }}"
+
+    - name: Save non-OS applications data to a temporary file
+      copy:
+        content: |
+          Hostname,IP,Name,UID,Path
+          {{ inventory_hostname }},{{ ansible_host }},
+          {% for app in nonos_applications_filtered %}
+          {{ app.name }},{{ app.uid }},{{ app.path }}
+          {% endfor %}
+        dest: "/home/ubuntu/vprofile/{{ inventory_hostname }}_nonos_apps.tmp"
+      delegate_to: localhost
+
+- name: Aggregate Non-OS Applications Information
+  hosts: localhost
+  gather_facts: no
+
+  tasks:
+    - name: Ensure temporary files exist
+      stat:
+        path: "/home/ubuntu/vprofile/{{ item }}_nonos_apps.tmp"
+      register: tmp_files
+      with_items:
+        - web01
+        - web02
+        - db
+
+    - name: Check if all temporary files exist
+      assert:
+        that:
+          - "tmp_files.results | map(attribute='stat.exists') | min"
+
+    - name: Read all temporary files
+      shell: "cat /home/ubuntu/vprofile/*.tmp"
+      register: aggregated_data
+
+    - name: Create single CSV file
+      copy:
+        content: "{{ aggregated_data.stdout }}"
+        dest: "/home/ubuntu/vprofile/nonos_apps_aggregated.csv"
+
+    - name: Clean up temporary files
+      file:
+        path: "/home/ubuntu/vprofile/{{ item }}"
+        state: absent
+      with_fileglob:
+        - "/home/ubuntu/vprofile/*.tmp"
+
