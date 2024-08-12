@@ -1,0 +1,31 @@
+---
+- name: Join ad
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install required packages
+      yum:
+        name:
+          - realmd
+          - sssd
+          - oddjob
+          - oddjob-mkhomedir
+          - adcli
+          - samba-common-tools
+        state: present
+
+    - name: Discover ad
+      command: "realm discover {{ domain }}"
+      register: realm_discovery
+
+    - name: Join the machine to the domain
+      command: "realm join --user={{ username }} {{ domain }}"
+      args:
+        stdin: "{{ password }}"
+      when: "'configured' not in realm_discovery.stdout"
+
+    - name: sssd is running
+      systemd:
+        name: sssd
+        state: started
+        enabled: yes
