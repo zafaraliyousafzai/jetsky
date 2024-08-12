@@ -19,9 +19,9 @@
       register: realm_discovery
 
     - name: Join the machine to the domain
-      command: "realm join --user={{ username }} {{ domain }}"
+      command: "realm -v join corp.jetstar.com --user={{ svc_LinuxADInt }} {{ --computer-ou='OU=Linux,OU=Servers,DC=corp,DC=jetstar,DC=com' }}"
       args:
-        stdin: "{{ password }}"
+        stdin: "{{ redhat }}"
       when: "'configured' not in realm_discovery.stdout"
 
     - name: sssd is running
